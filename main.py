@@ -2,6 +2,7 @@
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles   # 🔹 Added
 
 from models import (
     ExtractRequest,
@@ -21,13 +22,20 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# CORS (optional, but useful for testing from browser)
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# 🔥 ADD STATIC FILE HOSTING HERE
+# -------------------------------
+# This makes /static/<filename> accessible publicly
+# Make sure you create a folder named "static" in your project root.
+app.mount("/static", StaticFiles(directory="static"), name="static")
+# -------------------------------
 
 
 @app.post("/extract-bill-data", response_model=ExtractResponse)
@@ -92,5 +100,4 @@ def extract_bill_data(request: ExtractRequest) -> ExtractResponse:
         )
 
     except Exception as e:
-        # For debug you might log traceback here
         raise HTTPException(status_code=500, detail=str(e))
